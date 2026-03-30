@@ -9,3 +9,6 @@ class ConfigurationError(SmartDigestError):
 class ParserError(SmartDigestError):
     """Raised when Telegram channel parsing fails."""
 
+
+class DigestError(SmartDigestError):
+    """Raised when digest generation or delivery fails."""

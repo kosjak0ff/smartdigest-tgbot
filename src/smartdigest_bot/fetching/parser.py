@@ -5,7 +5,7 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 
 from smartdigest_bot.models import ParsedPost
-from smartdigest_bot.utils.text import normalize_whitespace
+from smartdigest_bot.utils.text import normalize_message_text
 
 
 def _has_audio(node) -> bool:
@@ -43,7 +43,7 @@ def parse_channel_html(html: str) -> list[ParsedPost]:
         if time_node and time_node.get("datetime"):
             published_at = datetime.fromisoformat(time_node["datetime"].replace("Z", "+00:00"))
 
-        text = normalize_whitespace(text_node.get_text("\n", strip=True) if text_node else "")
+        text = normalize_message_text(text_node.get_text("\n", strip=True) if text_node else "")
         if not text and has_audio:
             text = "[Audio post without text]"
         if not text:

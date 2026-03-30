@@ -62,22 +62,26 @@ class DigestService:
         for post in posts:
             self.digest_windows_repo.add_item(window_id, post.post_id)
 
-        prompt = build_digest_prompt(posts)
-        summary = await self.perplexity_client.summarize(prompt)
-        message = await self.telegram_sender.send_digest(
-            text=summary,
-            chat_id=self.target_chat_id,
-            thread_id=self.target_thread_id,
-        )
-        self.digests_repo.create_digest(
-            window_id=window_id,
-            target_chat_id=self.target_chat_id,
-            target_thread_id=self.target_thread_id,
-            telegram_message_id=getattr(message, "message_id", None),
-            model_name=self.model_name,
-            summary_text=summary,
-            source_posts_count=len(posts),
-        )
-        self.digest_windows_repo.set_status(window_id, "sent")
-        self.logger.info("Digest sent for window %s..%s", context.window_start, context.window_end)
-        return f"Digest sent with {len(posts)} posts."
+        try:
+            prompt = build_digest_prompt(posts)
+            summary = await self.perplexity_client.summarize(prompt)
+            message = await self.telegram_sender.send_digest(
+                text=summary,
+                chat_id=self.target_chat_id,
+                thread_id=self.target_thread_id,
+            )
+            self.digests_repo.create_digest(
+                window_id=window_id,
+                target_chat_id=self.target_chat_id,
+                target_thread_id=self.target_thread_id,
+                telegram_message_id=getattr(message, "message_id", None),
+                model_name=self.model_name,
+                summary_text=summary,
+                source_posts_count=len(posts),
+            )
+            self.digest_windows_repo.set_status(window_id, "sent")
+            self.logger.info("Digest sent for window %s..%s", context.window_start, context.window_end)
+            return f"Digest sent with {len(posts)} posts."
+        except Exception:
+            self.digest_windows_repo.set_status(window_id, "failed")
+            raise

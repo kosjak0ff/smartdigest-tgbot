@@ -4,7 +4,7 @@ import sqlite3
 
 from smartdigest_bot.models import DigestCandidate, ParsedPost, StoredPost
 from smartdigest_bot.utils.datetime import from_iso, to_iso, utcnow
-from smartdigest_bot.utils.text import normalize_whitespace, text_hash
+from smartdigest_bot.utils.text import normalize_message_text, text_hash
 
 
 class PostsRepository:
@@ -12,7 +12,7 @@ class PostsRepository:
         self.connection = connection
 
     def upsert_post(self, channel_id: int, channel_username: str, post: ParsedPost) -> StoredPost:
-        normalized_text = normalize_whitespace(post.content_text)
+        normalized_text = normalize_message_text(post.content_text)
         self.connection.execute(
             """
             INSERT INTO posts (

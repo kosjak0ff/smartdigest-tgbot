@@ -6,6 +6,7 @@ from datetime import timedelta
 from telegram import Update
 from telegram.ext import ContextTypes
 
+from smartdigest_bot.exceptions import DigestError
 from smartdigest_bot.utils.datetime import to_iso, utcnow
 
 
@@ -55,10 +56,13 @@ class CommandService:
             return
         end = utcnow()
         start = end - timedelta(hours=self.deps.lookback_hours)
-        result = await self.deps.digest_callback(
-            window_start=to_iso(start),
-            window_end=to_iso(end),
-            trigger_type="manual",
-            requested_by=f"telegram_user:{update.effective_user.id if update.effective_user else 'unknown'}",
-        )
+        try:
+            result = await self.deps.digest_callback(
+                window_start=to_iso(start),
+                window_end=to_iso(end),
+                trigger_type="manual",
+                requested_by=f"telegram_user:{update.effective_user.id if update.effective_user else 'unknown'}",
+            )
+        except DigestError as exc:
+            result = f"Digest failed: {exc}"
         await update.effective_message.reply_text(result)
