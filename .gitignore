@@ -9,5 +9,7 @@ __pycache__
 .pyright
 dmypy.json
 .venv
+.codex-swarm/
+viewer.sh
 .codex-swarm/worktrees
 .codex-swarm/tasks.json
