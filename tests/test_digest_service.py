@@ -47,6 +47,8 @@ class FakeDigestsRepo:
 class FakePerplexityClient:
     async def summarize(self, prompt: str) -> str:
         assert "https://t.me/example/1" in prompt
+        assert "строго на русском языке" in prompt
+        assert "НЕ добавляй внешние факты" in prompt
         return "Digest text"
 
 

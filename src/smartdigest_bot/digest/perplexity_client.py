@@ -27,7 +27,11 @@ class PerplexityClient:
                     "messages": [
                         {
                             "role": "system",
-                            "content": "You write compact high-signal Telegram digests with source links.",
+                            "content": (
+                                "Ты пишешь краткие русскоязычные дайджесты для Telegram. "
+                                "Используй только материалы, переданные пользователем. "
+                                "Не добавляй внешние знания, новости, рыночные сводки или домыслы."
+                            ),
                         },
                         {"role": "user", "content": prompt},
                     ],
