@@ -1,0 +1,13 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+__pycache__
+.pytest_cache
+.ruff_cache
+.mypy_cache
+.pyright
+dmypy.json
+.venv
+.codex-swarm/worktrees
+.codex-swarm/tasks.json
