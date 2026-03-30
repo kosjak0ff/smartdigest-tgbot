@@ -49,6 +49,8 @@ class FakePerplexityClient:
         assert "https://t.me/example/1" in prompt
         assert "строго на русском языке" in prompt
         assert "НЕ добавляй внешние факты" in prompt
+        assert "РОВНО 1 пунктов" in prompt
+        assert "НИ ОДИН пост не должен быть пропущен" in prompt
         return "Digest text"
 
 
