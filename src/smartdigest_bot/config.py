@@ -29,6 +29,8 @@ class AppConfig:
     perplexity_api_key: str
     perplexity_model: str
     perplexity_base_url: str
+    perplexity_timeout_seconds: float
+    perplexity_max_retries: int
     http_timeout_seconds: float
     http_user_agent: str
     log_level: str
@@ -89,6 +91,8 @@ def load_config(env_file: str = ".env") -> AppConfig:
         perplexity_api_key=_required("PERPLEXITY_API_KEY"),
         perplexity_model=os.getenv("PERPLEXITY_MODEL", "sonar-pro"),
         perplexity_base_url=os.getenv("PERPLEXITY_BASE_URL", "https://api.perplexity.ai"),
+        perplexity_timeout_seconds=float(os.getenv("PERPLEXITY_TIMEOUT_SECONDS", "60")),
+        perplexity_max_retries=int(os.getenv("PERPLEXITY_MAX_RETRIES", "3")),
         http_timeout_seconds=float(os.getenv("HTTP_TIMEOUT_SECONDS", "20")),
         http_user_agent=os.getenv("HTTP_USER_AGENT", "smartdigest-bot/0.1"),
         log_level=os.getenv("LOG_LEVEL", "INFO"),

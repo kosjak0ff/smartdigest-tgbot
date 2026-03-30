@@ -45,7 +45,8 @@ async def async_main() -> None:
         api_key=config.perplexity_api_key,
         model=config.perplexity_model,
         base_url=config.perplexity_base_url,
-        timeout_seconds=config.http_timeout_seconds,
+        timeout_seconds=config.perplexity_timeout_seconds,
+        max_retries=config.perplexity_max_retries,
     )
 
     command_placeholder = {}
