@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS posts (
     author_name TEXT,
     content_text TEXT NOT NULL,
     content_hash TEXT NOT NULL,
+    has_audio INTEGER NOT NULL DEFAULT 0,
     raw_html TEXT,
     fetched_at TEXT NOT NULL,
     UNIQUE(channel_id, telegram_post_id),
@@ -91,4 +92,7 @@ CREATE INDEX IF NOT EXISTS idx_digest_windows_status ON digest_windows(status);
 
 def migrate(connection: sqlite3.Connection) -> None:
     connection.executescript(SCHEMA)
+    columns = {row["name"] for row in connection.execute("PRAGMA table_info(posts)").fetchall()}
+    if "has_audio" not in columns:
+        connection.execute("ALTER TABLE posts ADD COLUMN has_audio INTEGER NOT NULL DEFAULT 0")
     connection.commit()

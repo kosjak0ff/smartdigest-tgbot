@@ -40,3 +40,5 @@ def configure_logging(level: str, log_file_path: str | None) -> None:
             logging.Formatter("%(asctime)s | %(levelname)-8s | %(name)s | %(message)s")
         )
         root.addHandler(file_handler)
+
+    logging.getLogger("httpx").setLevel(logging.WARNING)

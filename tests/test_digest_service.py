@@ -14,6 +14,7 @@ class FakePostsRepo:
                 external_post_url="https://t.me/example/1",
                 content_text="Hello",
                 published_at=None,
+                has_audio=False,
             )
         ]
 

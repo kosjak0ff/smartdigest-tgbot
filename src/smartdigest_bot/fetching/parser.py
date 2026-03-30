@@ -8,6 +8,16 @@ from smartdigest_bot.models import ParsedPost
 from smartdigest_bot.utils.text import normalize_whitespace
 
 
+def _has_audio(node) -> bool:
+    selectors = (
+        ".tgme_widget_message_voice_player",
+        ".tgme_widget_message_audio",
+        ".tgme_widget_message_document audio",
+        "audio",
+    )
+    return any(node.select_one(selector) is not None for selector in selectors)
+
+
 def parse_channel_html(html: str) -> list[ParsedPost]:
     soup = BeautifulSoup(html, "html.parser")
     posts: list[ParsedPost] = []
@@ -23,6 +33,7 @@ def parse_channel_html(html: str) -> list[ParsedPost]:
         text_node = node.select_one(".tgme_widget_message_text")
         date_node = node.select_one("a.tgme_widget_message_date")
         author_node = node.select_one(".tgme_widget_message_author")
+        has_audio = _has_audio(node)
 
         if date_node is None or not date_node.get("href"):
             continue
@@ -33,6 +44,8 @@ def parse_channel_html(html: str) -> list[ParsedPost]:
             published_at = datetime.fromisoformat(time_node["datetime"].replace("Z", "+00:00"))
 
         text = normalize_whitespace(text_node.get_text("\n", strip=True) if text_node else "")
+        if not text and has_audio:
+            text = "[Audio post without text]"
         if not text:
             continue
 
@@ -43,6 +56,7 @@ def parse_channel_html(html: str) -> list[ParsedPost]:
                 content_text=text,
                 published_at=published_at,
                 author_name=author_node.get_text(strip=True) if author_node else None,
+                has_audio=has_audio,
                 raw_html=str(node),
             )
         )

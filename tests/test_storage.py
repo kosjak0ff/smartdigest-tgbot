@@ -24,9 +24,11 @@ def test_storage_saves_posts_and_delivery(tmp_path) -> None:
             content_text="Hello",
             published_at=None,
             author_name=None,
+            has_audio=True,
             raw_html="<div></div>",
         ),
     )
+    assert stored.has_audio is True
     assert deliveries_repo.is_delivered(stored.id) is False
     deliveries_repo.mark_delivered(stored.id, "-1001", None, 42)
     assert deliveries_repo.is_delivered(stored.id) is True

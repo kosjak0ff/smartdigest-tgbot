@@ -14,6 +14,8 @@ class AppConfig:
     telegram_bot_token: str
     telegram_forward_chat_id: str
     telegram_forward_thread_id: int | None
+    telegram_audio_chat_id: str
+    telegram_audio_thread_id: int | None
     telegram_digest_chat_id: str
     telegram_digest_thread_id: int | None
     telegram_owner_user_id: int | None
@@ -57,6 +59,7 @@ def load_config(env_file: str = ".env") -> AppConfig:
         load_dotenv(env_path)
 
     forward_chat_id = _required("TELEGRAM_FORWARD_CHAT_ID")
+    audio_chat_id = os.getenv("TELEGRAM_AUDIO_CHAT_ID") or forward_chat_id
     digest_chat_id = os.getenv("TELEGRAM_DIGEST_CHAT_ID") or forward_chat_id
 
     digest_times = [item.strip() for item in os.getenv("DIGEST_SCHEDULE_TIMES", "08:00,20:00").split(",") if item.strip()]
@@ -71,6 +74,8 @@ def load_config(env_file: str = ".env") -> AppConfig:
         telegram_bot_token=_required("TELEGRAM_BOT_TOKEN"),
         telegram_forward_chat_id=forward_chat_id,
         telegram_forward_thread_id=_optional_int("TELEGRAM_FORWARD_THREAD_ID"),
+        telegram_audio_chat_id=audio_chat_id,
+        telegram_audio_thread_id=_optional_int("TELEGRAM_AUDIO_THREAD_ID"),
         telegram_digest_chat_id=digest_chat_id,
         telegram_digest_thread_id=_optional_int("TELEGRAM_DIGEST_THREAD_ID"),
         telegram_owner_user_id=_optional_int("TELEGRAM_OWNER_USER_ID"),
@@ -89,7 +94,7 @@ def load_config(env_file: str = ".env") -> AppConfig:
         log_level=os.getenv("LOG_LEVEL", "INFO"),
         log_file_path=os.getenv("LOG_FILE_PATH", "data/logs/smartdigest.log"),
         first_run_mode=first_run_mode,
-        first_run_max_posts_per_channel=int(os.getenv("FIRST_RUN_MAX_POSTS_PER_CHANNEL", "0")),
+        first_run_max_posts_per_channel=int(os.getenv("FIRST_RUN_MAX_POSTS_PER_CHANNEL", "1")),
         post_send_delay_seconds=float(os.getenv("POST_SEND_DELAY_SECONDS", "1.0")),
         telegram_parse_mode=os.getenv("TELEGRAM_PARSE_MODE", "HTML"),
     )

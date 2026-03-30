@@ -28,11 +28,18 @@ class Jobs:
         self.digest_service = digest_service
         self.config = config
 
+    def _resolve_delivery_target(self, post) -> tuple[str, int | None]:
+        if post.has_audio and self.config.telegram_audio_thread_id is not None:
+            return self.config.telegram_audio_chat_id, self.config.telegram_audio_thread_id
+        return self.config.telegram_forward_chat_id, self.config.telegram_forward_thread_id
+
     async def fetch_new_posts(self) -> None:
         for channel in self.channels_repo.list_active():
+            self.logger.info("Checking @%s for new posts", channel["username"])
             fetched_posts = await self.fetcher.fetch_posts(channel["username"])
             if not fetched_posts:
                 self.channels_repo.update_check_state(channel["id"], channel["last_seen_post_id"])
+                self.logger.info("No parsable posts found for @%s", channel["username"])
                 continue
 
             new_posts = [
@@ -65,17 +72,30 @@ class Jobs:
             for post in deliverable_posts:
                 stored = stored_by_post_id[post.telegram_post_id]
                 if self.deliveries_repo.is_delivered(stored.id):
+                    self.logger.info(
+                        "Skipping already delivered post @%s/%s",
+                        stored.channel_username,
+                        stored.telegram_post_id,
+                    )
                     continue
+                target_chat_id, target_thread_id = self._resolve_delivery_target(stored)
                 message = await self.sender.send_post(
                     stored,
-                    chat_id=self.config.telegram_forward_chat_id,
-                    thread_id=self.config.telegram_forward_thread_id,
+                    chat_id=target_chat_id,
+                    thread_id=target_thread_id,
                 )
                 self.deliveries_repo.mark_delivered(
                     stored.id,
-                    target_chat_id=self.config.telegram_forward_chat_id,
-                    target_thread_id=self.config.telegram_forward_thread_id,
+                    target_chat_id=target_chat_id,
+                    target_thread_id=target_thread_id,
                     telegram_message_id=getattr(message, "message_id", None),
+                )
+                self.logger.info(
+                    "Forwarded post @%s/%s to chat=%s thread=%s",
+                    stored.channel_username,
+                    stored.telegram_post_id,
+                    target_chat_id,
+                    target_thread_id,
                 )
 
             self.channels_repo.update_check_state(channel["id"], highest_seen)

@@ -17,15 +17,16 @@ class PostsRepository:
             """
             INSERT INTO posts (
                 channel_id, telegram_post_id, external_post_url, published_at, author_name,
-                content_text, content_hash, raw_html, fetched_at
+                content_text, content_hash, has_audio, raw_html, fetched_at
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(channel_id, telegram_post_id) DO UPDATE SET
                 external_post_url = excluded.external_post_url,
                 published_at = excluded.published_at,
                 author_name = excluded.author_name,
                 content_text = excluded.content_text,
                 content_hash = excluded.content_hash,
+                has_audio = excluded.has_audio,
                 raw_html = excluded.raw_html,
                 fetched_at = excluded.fetched_at
             """,
@@ -37,13 +38,14 @@ class PostsRepository:
                 post.author_name,
                 normalized_text,
                 text_hash(normalized_text),
+                1 if post.has_audio else 0,
                 post.raw_html,
                 to_iso(utcnow()),
             ),
         )
         row = self.connection.execute(
             """
-            SELECT p.id, c.username AS channel_username, p.telegram_post_id, p.external_post_url, p.content_text, p.published_at
+            SELECT p.id, c.username AS channel_username, p.telegram_post_id, p.external_post_url, p.content_text, p.published_at, p.has_audio
             FROM posts p
             JOIN channels c ON c.id = p.channel_id
             WHERE p.channel_id = ? AND p.telegram_post_id = ?
@@ -58,12 +60,13 @@ class PostsRepository:
             external_post_url=row["external_post_url"],
             content_text=row["content_text"],
             published_at=from_iso(row["published_at"]),
+            has_audio=bool(row["has_audio"]),
         )
 
     def list_for_digest_window(self, window_start: str, window_end: str, limit: int) -> list[DigestCandidate]:
         rows = self.connection.execute(
             """
-            SELECT p.id, c.username AS channel_username, p.external_post_url, p.content_text, p.published_at
+            SELECT p.id, c.username AS channel_username, p.external_post_url, p.content_text, p.published_at, p.has_audio
             FROM posts p
             JOIN channels c ON c.id = p.channel_id
             WHERE p.fetched_at >= ? AND p.fetched_at < ?
@@ -79,6 +82,7 @@ class PostsRepository:
                 external_post_url=row["external_post_url"],
                 content_text=row["content_text"],
                 published_at=from_iso(row["published_at"]),
+                has_audio=bool(row["has_audio"]),
             )
             for row in rows
         ]

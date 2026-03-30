@@ -19,6 +19,7 @@ class ParsedPost:
     content_text: str
     published_at: datetime | None
     author_name: str | None
+    has_audio: bool
     raw_html: str | None
 
 
@@ -30,6 +31,7 @@ class StoredPost:
     external_post_url: str
     content_text: str
     published_at: datetime | None
+    has_audio: bool
 
 
 @dataclass(slots=True)
@@ -39,4 +41,4 @@ class DigestCandidate:
     external_post_url: str
     content_text: str
     published_at: datetime | None
-
+    has_audio: bool

@@ -26,8 +26,11 @@ class TelegramSender:
         chat_id: str,
         thread_id: int | None,
     ) -> Any:
+        header = f"<b>@{escape_html(post.channel_username)}</b>"
+        if post.has_audio:
+            header += " <i>[audio]</i>"
         body = (
-            f"<b>@{escape_html(post.channel_username)}</b>\n\n"
+            f"{header}\n\n"
             f"{escape_html(truncate(post.content_text, 3500))}\n\n"
             f"<a href=\"{post.external_post_url}\">Original post</a>"
         )

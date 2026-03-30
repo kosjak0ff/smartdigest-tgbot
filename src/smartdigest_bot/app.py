@@ -119,6 +119,9 @@ async def async_main() -> None:
     await application.start()
     await application.updater.start_polling()
 
+    logger.info("Running initial channel fetch on startup")
+    await jobs.fetch_new_posts()
+
     logger.info("Starting scheduler")
     scheduler.start()
 

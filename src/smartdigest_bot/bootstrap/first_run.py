@@ -8,5 +8,5 @@ def select_first_run_posts(posts: list[ParsedPost], mode: str, max_posts: int) -
     if mode == "mark_seen":
         return []
     if max_posts <= 0:
-        return ordered
+        return ordered[-1:] if ordered else []
     return ordered[-max_posts:]

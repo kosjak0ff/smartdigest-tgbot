@@ -9,6 +9,7 @@ def _post(post_id: int) -> ParsedPost:
         content_text=f"Post {post_id}",
         published_at=None,
         author_name=None,
+        has_audio=False,
         raw_html=None,
     )
 
@@ -20,3 +21,8 @@ def test_first_run_mark_seen_skips_delivery() -> None:
 def test_first_run_send_recent_respects_limit() -> None:
     selected = select_first_run_posts([_post(1), _post(2), _post(3)], mode="send_recent", max_posts=2)
     assert [item.telegram_post_id for item in selected] == [2, 3]
+
+
+def test_first_run_send_recent_defaults_to_last_post_only() -> None:
+    selected = select_first_run_posts([_post(1), _post(2), _post(3)], mode="send_recent", max_posts=0)
+    assert [item.telegram_post_id for item in selected] == [3]
