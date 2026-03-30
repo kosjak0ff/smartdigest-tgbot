@@ -15,6 +15,7 @@ def test_parse_channel_html_extracts_posts() -> None:
     assert posts[0].telegram_post_id == 123
     assert posts[0].external_post_url == "https://t.me/example/123"
     assert posts[0].content_text == "Hello\nworld\nSecond line"
+    assert posts[0].content_html == "Hello <b>world</b>\n\nSecond line"
     assert posts[0].has_audio is False
 
 
@@ -31,3 +32,4 @@ def test_parse_channel_html_marks_audio_posts() -> None:
     assert len(posts) == 1
     assert posts[0].has_audio is True
     assert posts[0].content_text == "[Audio post without text]"
+    assert posts[0].content_html == "[Audio post without text]"

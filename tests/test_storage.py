@@ -22,6 +22,7 @@ def test_storage_saves_posts_and_delivery(tmp_path) -> None:
             telegram_post_id=1,
             external_post_url="https://t.me/example/1",
             content_text="Hello",
+            content_html="Hello",
             published_at=None,
             author_name=None,
             has_audio=True,
@@ -29,6 +30,7 @@ def test_storage_saves_posts_and_delivery(tmp_path) -> None:
         ),
     )
     assert stored.has_audio is True
+    assert stored.content_html == "Hello"
     assert deliveries_repo.is_delivered(stored.id) is False
     deliveries_repo.mark_delivered(stored.id, "-1001", None, 42)
     assert deliveries_repo.is_delivered(stored.id) is True

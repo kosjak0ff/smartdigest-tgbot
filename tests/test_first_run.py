@@ -7,6 +7,7 @@ def _post(post_id: int) -> ParsedPost:
         telegram_post_id=post_id,
         external_post_url=f"https://t.me/example/{post_id}",
         content_text=f"Post {post_id}",
+        content_html=f"Post {post_id}",
         published_at=None,
         author_name=None,
         has_audio=False,

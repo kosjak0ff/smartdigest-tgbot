@@ -59,6 +59,7 @@ class PostsRepository:
             telegram_post_id=row["telegram_post_id"],
             external_post_url=row["external_post_url"],
             content_text=row["content_text"],
+            content_html=post.content_html,
             published_at=from_iso(row["published_at"]),
             has_audio=bool(row["has_audio"]),
         )

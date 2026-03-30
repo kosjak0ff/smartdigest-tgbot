@@ -17,6 +17,7 @@ class ParsedPost:
     telegram_post_id: int
     external_post_url: str
     content_text: str
+    content_html: str
     published_at: datetime | None
     author_name: str | None
     has_audio: bool
@@ -30,6 +31,7 @@ class StoredPost:
     telegram_post_id: int
     external_post_url: str
     content_text: str
+    content_html: str
     published_at: datetime | None
     has_audio: bool
 

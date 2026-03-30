@@ -27,6 +27,7 @@ class FakePostsRepo:
             telegram_post_id=post.telegram_post_id,
             external_post_url=post.external_post_url,
             content_text=post.content_text,
+            content_html=post.content_html,
             published_at=post.published_at,
             has_audio=post.has_audio,
         )
@@ -52,6 +53,7 @@ class FakeFetcher:
                 telegram_post_id=10,
                 external_post_url="https://t.me/example/10",
                 content_text="Audio update",
+                content_html="Audio update",
                 published_at=None,
                 author_name=None,
                 has_audio=True,

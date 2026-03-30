@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 from datetime import datetime
+from html import escape
 
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, NavigableString, Tag
 
 from smartdigest_bot.models import ParsedPost
 from smartdigest_bot.utils.text import normalize_message_text
@@ -16,6 +17,57 @@ def _has_audio(node) -> bool:
         "audio",
     )
     return any(node.select_one(selector) is not None for selector in selectors)
+
+
+def _render_node(node) -> str:
+    if isinstance(node, NavigableString):
+        return escape(str(node))
+    if not isinstance(node, Tag):
+        return ""
+
+    name = node.name.lower()
+    children = "".join(_render_node(child) for child in node.children)
+
+    if name == "br":
+        return "\n"
+    if name in {"b", "strong"}:
+        return f"<b>{children}</b>"
+    if name in {"i", "em"}:
+        return f"<i>{children}</i>"
+    if name == "u":
+        return f"<u>{children}</u>"
+    if name in {"s", "strike", "del"}:
+        return f"<s>{children}</s>"
+    if name == "code":
+        return f"<code>{children}</code>"
+    if name == "pre":
+        return f"<pre>{children}</pre>"
+    if name == "a":
+        href = node.get("href")
+        if href:
+            return f'<a href="{escape(href, quote=True)}">{children}</a>'
+        return children
+    if name in {"blockquote", "aside"}:
+        return f"<blockquote>{children}</blockquote>"
+    return children
+
+
+def _render_message_html(text_node: Tag | None) -> str:
+    if text_node is None:
+        return ""
+    rendered = "".join(_render_node(child) for child in text_node.children)
+    lines = [line.rstrip() for line in rendered.replace("\r\n", "\n").split("\n")]
+    normalized: list[str] = []
+    previous_blank = False
+    for line in lines:
+        if not line.strip():
+            if not previous_blank and normalized:
+                normalized.append("")
+            previous_blank = True
+            continue
+        normalized.append(line.strip())
+        previous_blank = False
+    return "\n".join(normalized).strip()
 
 
 def parse_channel_html(html: str) -> list[ParsedPost]:
@@ -44,8 +96,10 @@ def parse_channel_html(html: str) -> list[ParsedPost]:
             published_at = datetime.fromisoformat(time_node["datetime"].replace("Z", "+00:00"))
 
         text = normalize_message_text(text_node.get_text("\n", strip=True) if text_node else "")
+        content_html = _render_message_html(text_node)
         if not text and has_audio:
             text = "[Audio post without text]"
+            content_html = "[Audio post without text]"
         if not text:
             continue
 
@@ -54,6 +108,7 @@ def parse_channel_html(html: str) -> list[ParsedPost]:
                 telegram_post_id=int(post_id_raw),
                 external_post_url=date_node["href"],
                 content_text=text,
+                content_html=content_html,
                 published_at=published_at,
                 author_name=author_node.get_text(strip=True) if author_node else None,
                 has_audio=has_audio,

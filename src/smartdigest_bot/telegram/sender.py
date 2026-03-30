@@ -31,7 +31,7 @@ class TelegramSender:
             header += " <i>[audio]</i>"
         body = (
             f"{header}\n\n"
-            f"{escape_html(truncate(post.content_text, 3500))}\n\n"
+            f"{truncate(post.content_html, 3500)}\n\n"
             f"<a href=\"{post.external_post_url}\">Original post</a>"
         )
         message = await self.bot.send_message(
