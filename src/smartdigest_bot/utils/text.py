@@ -36,3 +36,7 @@ def truncate(value: str, limit: int) -> str:
     if len(value) <= limit:
         return value
     return value[: max(0, limit - 1)].rstrip() + "…"
+
+
+def strip_html_tags(value: str) -> str:
+    return re.sub(r"<[^>]+>", "", value)
