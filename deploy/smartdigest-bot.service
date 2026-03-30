@@ -5,9 +5,10 @@ After=network.target
 [Service]
 Type=simple
 User=smartdigest
-WorkingDirectory=/opt/smartdigest-tgbot
-EnvironmentFile=/opt/smartdigest-tgbot/.env
-ExecStart=/opt/smartdigest-tgbot/.venv/bin/python -m smartdigest_bot
+Group=smartdigest
+WorkingDirectory=/home/smartdigest/smartdigest-tgbot
+EnvironmentFile=/home/smartdigest/smartdigest-tgbot/.env
+ExecStart=/home/smartdigest/smartdigest-tgbot/.venv/bin/python -m smartdigest_bot
 Restart=always
 RestartSec=5
 

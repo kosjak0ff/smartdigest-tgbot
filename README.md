@@ -40,6 +40,32 @@ detect-secrets scan
 
 Unit file: [deploy/smartdigest-bot.service](/home/code/codex-projects/smartdigest-tgbot/deploy/smartdigest-bot.service)
 
+### VPS deploy from scratch
+
+```bash
+sudo apt update
+sudo apt install -y git python3.12 python3.12-venv
+sudo useradd -m -s /bin/bash smartdigest || true
+sudo -u smartdigest -H bash -lc '
+cd /home/smartdigest
+git clone https://github.com/kosjak0ff/smartdigest-tgbot.git
+cd smartdigest-tgbot
+python3.12 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install -e .
+cp .env.example .env
+cp channels.yaml.example channels.yaml
+mkdir -p data
+'
+sudo -u smartdigest -H nano /home/smartdigest/smartdigest-tgbot/.env
+sudo -u smartdigest -H nano /home/smartdigest/smartdigest-tgbot/channels.yaml
+sudo cp /home/smartdigest/smartdigest-tgbot/deploy/smartdigest-bot.service /etc/systemd/system/smartdigest-bot.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now smartdigest-bot.service
+sudo journalctl -u smartdigest-bot.service -f
+```
+
 ## Русский
 
 ### Что делает
@@ -71,4 +97,30 @@ python -m smartdigest_bot
 
 ```bash
 detect-secrets scan
+```
+
+### Деплой на VPS с нуля
+
+```bash
+sudo apt update
+sudo apt install -y git python3.12 python3.12-venv
+sudo useradd -m -s /bin/bash smartdigest || true
+sudo -u smartdigest -H bash -lc '
+cd /home/smartdigest
+git clone https://github.com/kosjak0ff/smartdigest-tgbot.git
+cd smartdigest-tgbot
+python3.12 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install -e .
+cp .env.example .env
+cp channels.yaml.example channels.yaml
+mkdir -p data
+'
+sudo -u smartdigest -H nano /home/smartdigest/smartdigest-tgbot/.env
+sudo -u smartdigest -H nano /home/smartdigest/smartdigest-tgbot/channels.yaml
+sudo cp /home/smartdigest/smartdigest-tgbot/deploy/smartdigest-bot.service /etc/systemd/system/smartdigest-bot.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now smartdigest-bot.service
+sudo journalctl -u smartdigest-bot.service -f
 ```
