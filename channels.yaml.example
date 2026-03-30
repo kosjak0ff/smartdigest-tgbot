@@ -1,0 +1,8 @@
+channels:
+  - username: durov
+    title: Pavel Durov
+    enabled: true
+    fetch_interval_minutes: 10
+  - username: telegram
+    title: Telegram News
+    enabled: true

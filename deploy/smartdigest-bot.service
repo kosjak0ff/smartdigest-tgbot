@@ -1,0 +1,15 @@
+[Unit]
+Description=SmartDigest Telegram Bot
+After=network.target
+
+[Service]
+Type=simple
+User=smartdigest
+WorkingDirectory=/opt/smartdigest-tgbot
+EnvironmentFile=/opt/smartdigest-tgbot/.env
+ExecStart=/opt/smartdigest-tgbot/.venv/bin/python -m smartdigest_bot
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

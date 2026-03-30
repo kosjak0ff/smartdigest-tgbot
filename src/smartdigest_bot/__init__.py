@@ -1,0 +1,2 @@
+"""smartdigest_bot package."""
+
