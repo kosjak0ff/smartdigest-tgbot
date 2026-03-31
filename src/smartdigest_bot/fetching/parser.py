@@ -6,7 +6,7 @@ from html import escape
 from bs4 import BeautifulSoup, NavigableString, Tag
 
 from smartdigest_bot.models import ParsedPost
-from smartdigest_bot.utils.text import normalize_message_text
+from smartdigest_bot.utils.text import normalize_message_text, strip_html_tags
 
 
 def _has_audio(node) -> bool:
@@ -96,6 +96,18 @@ def _render_message_html(text_node: Tag | None) -> str:
     return "\n".join(normalized).strip()
 
 
+def _strip_pinned_boilerplate(value: str) -> str:
+    lines = value.split("\n")
+    filtered = []
+    for line in lines:
+        compact = " ".join(line.split())
+        lowered = compact.lower()
+        if " pinned a " in lowered:
+            continue
+        filtered.append(line)
+    return "\n".join(filtered).strip()
+
+
 def parse_channel_html(html: str) -> list[ParsedPost]:
     soup = BeautifulSoup(html, "html.parser")
     posts: list[ParsedPost] = []
@@ -124,8 +136,11 @@ def parse_channel_html(html: str) -> list[ParsedPost]:
         if time_node and time_node.get("datetime"):
             published_at = datetime.fromisoformat(time_node["datetime"].replace("Z", "+00:00"))
 
-        text = normalize_message_text(text_node.get_text("\n", strip=True) if text_node else "")
         content_html = _render_message_html(text_node)
+        text = normalize_message_text(strip_html_tags(content_html))
+        if is_forwarded and content_html:
+            content_html = _strip_pinned_boilerplate(content_html)
+            text = normalize_message_text(_strip_pinned_boilerplate(text))
         if not text and has_audio:
             text = "[Audio post without text]"
             content_html = "[Audio post without text]"

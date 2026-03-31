@@ -97,10 +97,19 @@ class TelegramSender:
         chat_id: str,
         thread_id: int | None,
     ) -> Any:
-        return await self.bot.send_message(
-            chat_id=chat_id,
-            text=truncate(text, 4096),
-            message_thread_id=thread_id,
-            parse_mode=self.parse_mode,
-            disable_web_page_preview=False,
-        )
+        digest_text = truncate(text, 4096)
+        try:
+            return await self.bot.send_message(
+                chat_id=chat_id,
+                text=digest_text,
+                message_thread_id=thread_id,
+                parse_mode=self.parse_mode,
+                disable_web_page_preview=False,
+            )
+        except BadRequest:
+            return await self.bot.send_message(
+                chat_id=chat_id,
+                text=digest_text,
+                message_thread_id=thread_id,
+                disable_web_page_preview=False,
+            )

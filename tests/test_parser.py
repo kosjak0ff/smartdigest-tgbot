@@ -14,12 +14,49 @@ def test_parse_channel_html_extracts_posts() -> None:
     assert len(posts) == 1
     assert posts[0].telegram_post_id == 123
     assert posts[0].external_post_url == "https://t.me/example/123"
-    assert posts[0].content_text == "Hello\nworld\nSecond line"
+    assert posts[0].content_text == "Hello world\n\nSecond line"
     assert posts[0].content_html == "Hello <b>world</b>\n\nSecond line"
     assert posts[0].has_audio is False
     assert posts[0].has_video is False
     assert posts[0].has_photo is False
     assert posts[0].is_forwarded is False
+
+
+def test_parse_channel_html_preserves_inline_formatting_without_extra_line_breaks() -> None:
+    html = """
+    <div class="tgme_widget_message" data-post="example/127">
+      <a class="tgme_widget_message_date" href="https://t.me/example/127">
+        <time datetime="2026-03-30T10:00:00+00:00"></time>
+      </a>
+      <div class="tgme_widget_message_text">✅ Примеры того, что сейчас получаем:<br>✔️ Стандартные цены:<br>🔴 Годовая подписка на 10 профилей стоит 108$</div>
+    </div>
+    """
+    posts = parse_channel_html(html)
+    assert len(posts) == 1
+    assert posts[0].content_text == (
+        "✅ Примеры того, что сейчас получаем:\n"
+        "✔️ Стандартные цены:\n"
+        "🔴 Годовая подписка на 10 профилей стоит 108$"
+    )
+
+
+def test_parse_channel_html_strips_forwarded_pinned_boilerplate() -> None:
+    html = """
+    <div class="tgme_widget_message" data-post="example/128">
+      <a class="tgme_widget_message_date" href="https://t.me/example/128">
+        <time datetime="2026-03-30T10:00:00+00:00"></time>
+      </a>
+      <div class="tgme_widget_message_forwarded_from">Forwarded from someone</div>
+      <div class="tgme_widget_message_text">
+        Crypto Fortochka (https://t.me/cryptoforto) pinned a photo<br>
+        Нормальный текст поста
+      </div>
+    </div>
+    """
+    posts = parse_channel_html(html)
+    assert len(posts) == 1
+    assert posts[0].content_text == "Нормальный текст поста"
+    assert "pinned a photo" not in posts[0].content_html
 
 
 def test_parse_channel_html_marks_audio_posts() -> None:

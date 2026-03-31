@@ -65,4 +65,6 @@ class CommandService:
             )
         except DigestError as exc:
             result = f"Digest failed: {exc}"
+        except Exception:
+            result = "Digest failed: unexpected internal error."
         await update.effective_message.reply_text(result)
