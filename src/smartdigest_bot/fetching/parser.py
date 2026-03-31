@@ -19,6 +19,32 @@ def _has_audio(node) -> bool:
     return any(node.select_one(selector) is not None for selector in selectors)
 
 
+def _has_video(node) -> bool:
+    selectors = (
+        ".tgme_widget_message_video_player",
+        ".tgme_widget_message_video_wrap",
+        ".tgme_widget_message_document video",
+        "video",
+    )
+    return any(node.select_one(selector) is not None for selector in selectors)
+
+
+def _has_photo(node) -> bool:
+    selectors = (
+        ".tgme_widget_message_photo_wrap",
+        ".tgme_widget_message_grouped_wrap",
+    )
+    return any(node.select_one(selector) is not None for selector in selectors)
+
+
+def _is_forwarded(node) -> bool:
+    selectors = (
+        ".tgme_widget_message_forwarded_from",
+        ".tgme_widget_message_forwarded_from_name",
+    )
+    return any(node.select_one(selector) is not None for selector in selectors)
+
+
 def _render_node(node) -> str:
     if isinstance(node, NavigableString):
         return escape(str(node))
@@ -86,6 +112,9 @@ def parse_channel_html(html: str) -> list[ParsedPost]:
         date_node = node.select_one("a.tgme_widget_message_date")
         author_node = node.select_one(".tgme_widget_message_author")
         has_audio = _has_audio(node)
+        has_video = _has_video(node)
+        has_photo = _has_photo(node)
+        is_forwarded = _is_forwarded(node)
 
         if date_node is None or not date_node.get("href"):
             continue
@@ -100,6 +129,9 @@ def parse_channel_html(html: str) -> list[ParsedPost]:
         if not text and has_audio:
             text = "[Audio post without text]"
             content_html = "[Audio post without text]"
+        if not text and has_video:
+            text = "[Video post without text]"
+            content_html = "[Video post without text]"
         if not text:
             continue
 
@@ -112,6 +144,9 @@ def parse_channel_html(html: str) -> list[ParsedPost]:
                 published_at=published_at,
                 author_name=author_node.get_text(strip=True) if author_node else None,
                 has_audio=has_audio,
+                has_video=has_video,
+                has_photo=has_photo,
+                is_forwarded=is_forwarded,
                 raw_html=str(node),
             )
         )

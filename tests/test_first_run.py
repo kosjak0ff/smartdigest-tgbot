@@ -11,6 +11,9 @@ def _post(post_id: int) -> ParsedPost:
         published_at=None,
         author_name=None,
         has_audio=False,
+        has_video=False,
+        has_photo=False,
+        is_forwarded=False,
         raw_html=None,
     )
 

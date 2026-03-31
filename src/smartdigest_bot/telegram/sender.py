@@ -25,6 +25,8 @@ class TelegramSender:
         header = f"<b>@{escape_html(post.channel_username)}</b>"
         if post.has_audio:
             header += " <i>[audio]</i>"
+        if post.has_video:
+            header += " <i>[video]</i>"
 
         link_block = f'<a href="{post.external_post_url}">Original post</a>'
         reserved = len(header) + len(link_block) + 4
@@ -38,6 +40,8 @@ class TelegramSender:
         header = f"@{post.channel_username}"
         if post.has_audio:
             header += " [audio]"
+        if post.has_video:
+            header += " [video]"
         body = (
             f"{header}\n\n"
             f"{truncate(post.content_text, max(0, limit - len(header) - len(post.external_post_url) - 4))}\n\n"
@@ -71,6 +75,9 @@ class TelegramSender:
                     content_html=post.content_html,
                     published_at=post.published_at,
                     has_audio=post.has_audio,
+                    has_video=post.has_video,
+                    has_photo=post.has_photo,
+                    is_forwarded=post.is_forwarded,
                 ),
                 4096,
             )

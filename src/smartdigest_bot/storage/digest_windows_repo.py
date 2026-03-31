@@ -22,6 +22,20 @@ class DigestWindowsRepository:
         self.connection.commit()
         return int(window_id)
 
+    def get_latest_sent_window_end(self) -> str | None:
+        row = self.connection.execute(
+            """
+            SELECT window_end
+            FROM digest_windows
+            WHERE status = 'sent'
+            ORDER BY window_end DESC
+            LIMIT 1
+            """
+        ).fetchone()
+        if row is None:
+            return None
+        return row["window_end"]
+
     def set_status(self, window_id: int, status: str) -> None:
         started_at = to_iso(utcnow()) if status == "running" else None
         finished_at = to_iso(utcnow()) if status in {"sent", "failed", "skipped"} else None

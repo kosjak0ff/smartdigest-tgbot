@@ -32,6 +32,9 @@ async def test_sender_falls_back_to_plain_text_on_bad_html() -> None:
         content_html="<b>broken",
         published_at=None,
         has_audio=False,
+        has_video=False,
+        has_photo=False,
+        is_forwarded=False,
     )
 
     await sender.send_post(post, chat_id="-1001", thread_id=5)

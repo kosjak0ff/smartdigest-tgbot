@@ -26,10 +26,16 @@ def test_storage_saves_posts_and_delivery(tmp_path) -> None:
             published_at=None,
             author_name=None,
             has_audio=True,
+            has_video=False,
+            has_photo=True,
+            is_forwarded=True,
             raw_html="<div></div>",
         ),
     )
     assert stored.has_audio is True
+    assert stored.has_video is False
+    assert stored.has_photo is True
+    assert stored.is_forwarded is True
     assert stored.content_html == "Hello"
     assert deliveries_repo.is_delivered(stored.id) is False
     deliveries_repo.mark_delivered(stored.id, "-1001", None, 42)

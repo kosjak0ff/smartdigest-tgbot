@@ -29,9 +29,13 @@ class Jobs:
         self.config = config
 
     def _resolve_delivery_target(self, post) -> tuple[str, int | None]:
-        if post.has_audio and self.config.telegram_audio_thread_id is not None:
+        if (post.has_audio or getattr(post, "has_video", False)) and self.config.telegram_audio_thread_id is not None:
             return self.config.telegram_audio_chat_id, self.config.telegram_audio_thread_id
         return self.config.telegram_forward_chat_id, self.config.telegram_forward_thread_id
+
+    @staticmethod
+    def _should_skip_delivery(post) -> bool:
+        return getattr(post, "has_photo", False) or getattr(post, "is_forwarded", False)
 
     async def fetch_new_posts(self) -> None:
         for channel in self.channels_repo.list_active():
@@ -71,6 +75,15 @@ class Jobs:
 
             for post in deliverable_posts:
                 stored = stored_by_post_id[post.telegram_post_id]
+                if self._should_skip_delivery(stored):
+                    self.logger.info(
+                        "Skipping filtered post @%s/%s photo=%s forwarded=%s",
+                        stored.channel_username,
+                        stored.telegram_post_id,
+                        stored.has_photo,
+                        stored.is_forwarded,
+                    )
+                    continue
                 if self.deliveries_repo.is_delivered(stored.id):
                     self.logger.info(
                         "Skipping already delivered post @%s/%s",

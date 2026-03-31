@@ -21,6 +21,9 @@ class ParsedPost:
     published_at: datetime | None
     author_name: str | None
     has_audio: bool
+    has_video: bool
+    has_photo: bool
+    is_forwarded: bool
     raw_html: str | None
 
 
@@ -34,6 +37,9 @@ class StoredPost:
     content_html: str
     published_at: datetime | None
     has_audio: bool
+    has_video: bool
+    has_photo: bool
+    is_forwarded: bool
 
 
 @dataclass(slots=True)
@@ -44,3 +50,6 @@ class DigestCandidate:
     content_text: str
     published_at: datetime | None
     has_audio: bool
+    has_video: bool
+    has_photo: bool
+    is_forwarded: bool

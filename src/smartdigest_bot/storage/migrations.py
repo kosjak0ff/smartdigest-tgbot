@@ -26,6 +26,9 @@ CREATE TABLE IF NOT EXISTS posts (
     content_text TEXT NOT NULL,
     content_hash TEXT NOT NULL,
     has_audio INTEGER NOT NULL DEFAULT 0,
+    has_video INTEGER NOT NULL DEFAULT 0,
+    has_photo INTEGER NOT NULL DEFAULT 0,
+    is_forwarded INTEGER NOT NULL DEFAULT 0,
     raw_html TEXT,
     fetched_at TEXT NOT NULL,
     UNIQUE(channel_id, telegram_post_id),
@@ -95,4 +98,10 @@ def migrate(connection: sqlite3.Connection) -> None:
     columns = {row["name"] for row in connection.execute("PRAGMA table_info(posts)").fetchall()}
     if "has_audio" not in columns:
         connection.execute("ALTER TABLE posts ADD COLUMN has_audio INTEGER NOT NULL DEFAULT 0")
+    if "has_video" not in columns:
+        connection.execute("ALTER TABLE posts ADD COLUMN has_video INTEGER NOT NULL DEFAULT 0")
+    if "has_photo" not in columns:
+        connection.execute("ALTER TABLE posts ADD COLUMN has_photo INTEGER NOT NULL DEFAULT 0")
+    if "is_forwarded" not in columns:
+        connection.execute("ALTER TABLE posts ADD COLUMN is_forwarded INTEGER NOT NULL DEFAULT 0")
     connection.commit()
