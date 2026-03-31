@@ -59,6 +59,20 @@ def test_parse_channel_html_strips_forwarded_pinned_boilerplate() -> None:
     assert "pinned a photo" not in posts[0].content_html
 
 
+def test_parse_channel_html_skips_forwarded_pinned_service_post() -> None:
+    html = """
+    <div class="tgme_widget_message" data-post="example/129">
+      <a class="tgme_widget_message_date" href="https://t.me/example/129">
+        <time datetime="2026-03-30T10:00:00+00:00"></time>
+      </a>
+      <div class="tgme_widget_message_forwarded_from">Forwarded from someone</div>
+      <div class="tgme_widget_message_text">Crypto Fortochka pinned a photo</div>
+    </div>
+    """
+    posts = parse_channel_html(html)
+    assert posts == []
+
+
 def test_parse_channel_html_marks_audio_posts() -> None:
     html = """
     <div class="tgme_widget_message" data-post="example/124">

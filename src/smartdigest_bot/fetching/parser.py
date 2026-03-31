@@ -108,6 +108,13 @@ def _strip_pinned_boilerplate(value: str) -> str:
     return "\n".join(filtered).strip()
 
 
+def _is_pinned_service_post(text: str, is_forwarded: bool) -> bool:
+    if not is_forwarded:
+        return False
+    compact = " ".join(text.split()).lower()
+    return bool(compact) and " pinned a " in compact and "\n" not in text
+
+
 def parse_channel_html(html: str) -> list[ParsedPost]:
     soup = BeautifulSoup(html, "html.parser")
     posts: list[ParsedPost] = []
@@ -138,6 +145,8 @@ def parse_channel_html(html: str) -> list[ParsedPost]:
 
         content_html = _render_message_html(text_node)
         text = normalize_message_text(strip_html_tags(content_html))
+        if _is_pinned_service_post(text, is_forwarded):
+            continue
         if is_forwarded and content_html:
             content_html = _strip_pinned_boilerplate(content_html)
             text = normalize_message_text(_strip_pinned_boilerplate(text))
